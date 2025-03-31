@@ -6,23 +6,29 @@
 const username = document.getElementById("username");
 const password = document.getElementById("password");
 
-const login = () => {
-    // console.log(username.value, password.value);
-    if(username.value === "addy" && password.value === "pizza") {
-        sessionStorage.setItem("name", "Addy");
-        window.location = "/pages/home.html";
+const login = async () => {
+    const user = { username: username.value, password: password.value};
+    const respuesta = await fetch("http://localhost:5003/login", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(user),
+    });
+    const data = await respuesta.json();
+    if (data.isLogin) {
+      sessionStorage.setItem("id", data.user.id);
+      sessionStorage.setItem("name", data.user.name);
+      window.location = "./pages/home.html?id=" + data.user.id;
+    } else {
+      alert("credenciales incorrectas");
     }
-    else {
-        alert("Credenciales incorrectas");
+  };
+  
+  const btnLogin = document.getElementById("btnLogin");
+  
+  btnLogin.addEventListener("click", login);
+  
+  password.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      login();
     }
-};
-
-const btnLogin = document.getElementById("btnLogin");
-
-btnLogin.addEventListener("click", login);
-
-password.addEventListener("keydown", (e) => {
-    if(e.key === "Enter") {
-        login();
-    }
-});
+  });
